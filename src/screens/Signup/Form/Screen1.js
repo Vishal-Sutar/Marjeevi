@@ -129,6 +129,7 @@ const handleContinue = () => {
               </Text>
             </TouchableOpacity>
           ))}
+          
         </View>
 
         {/* VILLAGE */}
