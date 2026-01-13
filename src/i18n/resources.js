@@ -360,7 +360,7 @@ states: [
       ],
 
  "hello_farmer": "Hello, Farmer",
-  "welcome_back": "Welcome back to FPO Manager",
+  "welcome_back": "Welcome back to Farmer",
   "quick_actions": "Quick Actions",
   "recent_activities": "Recent Activities",
   "see_all": "See All",
@@ -475,7 +475,7 @@ states: [
     }
   },
 
-  "tabs": {
+  "farmer_tabs": {
     "home": "Home",
     "marketplace": "Marketplace",
     "listings": "My Listings",
@@ -604,7 +604,7 @@ states: [
 
   // FPO tabs
 
-   "tabs": {
+   "fpo_tabs": {
     "home": "Home",
     "farmers": "Farmers",
     "inventory": "Inventory",
@@ -614,7 +614,7 @@ states: [
 
   // Employee tabs
 
-   "tabs": {
+   "employee_tabs": {
     "home": "Home",
     "farmers": "Farmers",
     "buy": "Buy",
@@ -1089,7 +1089,7 @@ states: [
       ],
 
       "hello_farmer": "नमस्ते किसान",
-  "welcome_back": "एफपीओ मैनेजर में आपका स्वागत है",
+  "welcome_back": "किसान में आपका स्वागत है",
  "quick_actions": "त्वरित कार्य",
   "recent_activities": "हाल की गतिविधियाँ",
   "see_all": "सभी देखें",
@@ -1187,7 +1187,7 @@ states: [
     }
   },
 
-"tabs": {
+"farmer_tabs": {
     "home": "होम",
     "marketplace": "मार्केट",
     "listings": "मेरी लिस्टिंग",
@@ -1314,7 +1314,7 @@ states: [
   },
 
   // FPO Tabs
-   "tabs": {
+   "fpo_tabs": {
     "home": "होम",
     "farmers": "किसान",
     "inventory": "स्टॉक",
@@ -1323,7 +1323,7 @@ states: [
 
   // employee tabs
 
-   "tabs": {
+   "employee_tabs": {
     "home": "होम",
     "farmers": "किसान",
     "buy": "खरीदें",

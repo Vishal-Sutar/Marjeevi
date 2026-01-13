@@ -22,9 +22,13 @@ i18n
   .init({
     compatibilityJSON: "v3",
     fallbackLng: "en",
+    debug: false,
     resources,
     interpolation: {
       escapeValue: false,
+    },
+    react: {
+      useSuspense: false,
     },
   });
 

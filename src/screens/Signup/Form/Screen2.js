@@ -17,28 +17,40 @@ import Geocoder from "react-native-geocoding";
 // import {getLocation} from "../../common/reusableComponent/requestLocationPermission";
 import {getLocation} from '../../../common/reusableComponent/requestLocationPermission';
 import { useTranslation } from "react-i18next";
+import { Country, State, City } from 'country-state-city';
 
 
 const Screen2 = () => {
   const navigation = useNavigation();
-    const { t } = useTranslation(); // 🌍
-    const STATES = t("states", { returnObjects: true });
-const DISTRICTS = t("districts", { returnObjects: true });
+  const { t } = useTranslation();
+  
+  // Get Indian states and cities
+  const indianStates = State.getStatesOfCountry('IN');
+  const [availableDistricts, setAvailableDistricts] = useState([]);
+  
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedStateCode, setSelectedStateCode] = useState("");
+  const [showStates, setShowStates] = useState(false);
 
-    const [selectedState, setSelectedState] = useState("");
-   const [showStates, setShowStates] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [showDistricts, setShowDistricts] = useState(false);
 
-   const [selectedDistrict, setSelectedDistrict] = useState("");
-const [showDistricts, setShowDistricts] = useState(false);
-
-    const route = useRoute();
-     // ✅ data from Screen1
+  const route = useRoute();
   const { screen1Data } = route.params || {};
-
-
-    const [location , setLocation] = useState(null)
-
+  const [location, setLocation] = useState(null);
   const [address, setAddress] = useState("");
+
+  // Handle state selection
+  const handleStateSelect = (state) => {
+    setSelectedState(state.name);
+    setSelectedStateCode(state.isoCode);
+    setSelectedDistrict(""); // Reset district when state changes
+    setShowStates(false);
+    
+    // Get districts/cities for selected state
+    const districts = City.getCitiesOfState('IN', state.isoCode);
+    setAvailableDistricts(districts);
+  };
 
 useEffect(() => {
     const initLocation = async () => {
@@ -250,21 +262,18 @@ const detectGPS = async () => {
         {showStates && (
           <View style={styles.dropdownList}>
             <FlatList
-              data={STATES}
-              keyExtractor={(item) => item}
+              data={indianStates}
+              keyExtractor={(item) => item.isoCode}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.dropdownItem}
-                  onPress={() => {
-                    setSelectedState(item);
-                    setShowStates(false);
-                  }}
+                  onPress={() => handleStateSelect(item)}
                 >
-                  <Text style={styles.dropdownItemText}>{item}</Text>
+                  <Text style={styles.dropdownItemText}>{item.name}</Text>
                 </TouchableOpacity>
               )}
               showsVerticalScrollIndicator={true}
-      nestedScrollEnabled={true}
+              nestedScrollEnabled={true}
             />
           </View>
         )}
@@ -283,20 +292,23 @@ const detectGPS = async () => {
 
         {showDistricts && (
           <View style={styles.dropdownList}>
-            <ScrollView>
-              {DISTRICTS.map((item) => (
+            <FlatList
+              data={availableDistricts}
+              keyExtractor={(item) => item.name}
+              renderItem={({ item }) => (
                 <TouchableOpacity
-                  key={item}
                   style={styles.dropdownItem}
                   onPress={() => {
-                    setSelectedDistrict(item);
+                    setSelectedDistrict(item.name);
                     setShowDistricts(false);
                   }}
                 >
-                  <Text>{item}</Text>
+                  <Text style={styles.dropdownItemText}>{item.name}</Text>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+              )}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled={true}
+            />
           </View>
         )}
 

@@ -25,11 +25,17 @@ const Screen6 = () => {
   const hasBankData = bankName || ifsc || accountNumber;
 
   const handleContinue = () => {
+    const bankDetails = hasBankData
+      ? {
+          bankName,
+          ifsc,
+          accountNumber,
+        }
+      : undefined;
+
     const payloadWithBank = {
       ...finalPayload,
-      bankName: bankName || null,
-      ifscCode: ifsc || null,
-      accountNumber: accountNumber || null,
+      // ...(bankDetails && { bankDetails }),
     };
 
     navigation.navigate("Screen7", { payload: payloadWithBank });

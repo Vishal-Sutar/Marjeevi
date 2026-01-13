@@ -13,6 +13,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
+import { pick, types } from "@react-native-documents/picker";
+
 import { register, saveRegisteredUser } from "../../../Redux/AuthSlice";
 import { FarmerRegister } from "../../../Redux/apiService";
 import { setUserData, setAccessToken } from "../../../Redux/Storage";
@@ -35,57 +37,80 @@ const Screen7 = () => {
   const [labReport, setLabReport] = useState(null);
   const [govDoc, setGovDoc] = useState(null);
 
-  // 🔹 Form validation - make documents optional
-  const isFormValid = true; // Allow submission without documents
+  // 🔹 Form validation
+  const isFormValid = soilCard && labReport && govDoc;
 
   /**
    * 📎 Pick document
    */
   const pickDocument = async (setter) => {
-    // Create dummy document for now due to picker issues
-    setter({
-      uri: 'dummy://document.pdf',
-      name: 'Document.pdf',
-      type: 'application/pdf',
-      size: 1024,
-    });
-    
-    Alert.alert('Info', 'Document picker temporarily disabled. Dummy document added.');
+    try {
+      const result = await pick({
+        allowMultiSelection: false,
+        type: [types.allFiles],
+      });
+
+      const file = result[0];
+
+      setter({
+        uri: file.fileCopyUri || file.uri,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+    } catch (error) {
+      if (error.code !== "DOCUMENT_PICKER_CANCELED") {
+        console.log("DOCUMENT PICK ERROR 👉", error);
+        Alert.alert(t("error"), t("file_pick_failed"));
+      }
+    }
   };
 
   /**
    * ✅ Submit final registration
    */
   const handleSubmit = async () => {
-    console.log('Final payload being sent:', payload);
-    
+    if (!isFormValid) {
+      Alert.alert(t("error"), t("upload_all_documents"));
+      return;
+    }
+
+    const finalPayload = {
+      ...payload,
+      documents: {
+        soilHealthCard: soilCard.uri,
+        labReport: labReport.uri,
+        governmentDocument: govDoc.uri,
+      },
+    };
+
     try {
-      const response = await FarmerRegister(payload);
+      const response = await FarmerRegister(finalPayload);
 
       console.log("BACKEND SUCCESS RESPONSE 👉", response);
 
-      if (response && response.success !== false) {
-        // Registration successful - navigate to login
-        setTimeout(() => {
-          Alert.alert(
-            "Success", 
-            "Registration completed successfully! Please login.",
-            [{
-              text: "OK", 
-              onPress: () => navigation.navigate("Login", { roleId: "farmer" })
-            }]
-          );
-        }, 100);
-      } else {
-        setTimeout(() => {
-          Alert.alert("Error", "Registration failed. Please try again.");
-        }, 100);
+      if (response) {
+        // Force save 'farmer' role to AsyncStorage
+        await setUserData('farmer');
+        if (response.token) {
+          await setAccessToken(response.token);
+        }
+        
+        // Save user data to Redux
+        dispatch(register({
+          user: { role: 'farmer' },
+          token: response.token
+        }));
+        
+        // Navigate to farmer home
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "BindUser" }],
+        });
       }
     } catch (error) {
       console.log("BACKEND ERROR 👉", error);
-      setTimeout(() => {
-        Alert.alert("Error", "Registration failed. Please check your details and try again.");
-      }, 100);
+      Alert.alert(t("error"), t("backend_error"));
     }
   };
 

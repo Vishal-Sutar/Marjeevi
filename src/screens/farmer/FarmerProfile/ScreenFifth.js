@@ -13,22 +13,17 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 
 const IRRIGATION_TYPES = [
-  "well",
-  "canal",
-  "drip",
-  "sprinkler",
-  "rain-dependent"
+  "irrigation_canal",
+  "irrigation_borewell",
+  "irrigation_rainfed",
+  "irrigation_drip",
 ];
 
 const SOIL_TYPES = [
-  "alluvial",
-  "black",
-  "red",
-  "laterite",
-  "desert",
-  "forest",
-  "peaty",
-  "alkaline"
+  "soil_black",
+  "soil_red",
+  "soil_alluvial",
+  "soil_sandy",
 ];
 
 const Screen5 = () => {
@@ -57,7 +52,7 @@ const renderIrrigationItem = ({ item }) => (
       setShowIrrigation(false);
     }}
   >
-    <Text style={styles.dropdownItemText}>{item}</Text>
+    <Text style={styles.dropdownItemText}>{t(item)}</Text>
   </TouchableOpacity>
 );
 
@@ -70,7 +65,7 @@ const renderSoilItem = ({ item }) => (
       setShowSoil(false);
     }}
   >
-    <Text style={styles.dropdownItemText}>{item}</Text>
+    <Text style={styles.dropdownItemText}>{t(item)}</Text>
   </TouchableOpacity>
 );
 
@@ -150,7 +145,7 @@ const renderSoilItem = ({ item }) => (
           }}
         >
           <Text style={styles.dropdownText}>
-            {irrigation ? irrigation : t("select_type")}
+            {irrigation ? t(irrigation) : t("select_type")}
           </Text>
           <Text style={styles.dropdownIcon}>⌄</Text>
         </TouchableOpacity>
@@ -174,7 +169,7 @@ const renderSoilItem = ({ item }) => (
           }}
         >
           <Text style={styles.dropdownText}>
-           {soil ? soil : t("select_soil")}
+           {soil ? t(soil) : t("select_soil")}
           </Text>
           <Text style={styles.dropdownIcon}>⌄</Text>
         </TouchableOpacity>

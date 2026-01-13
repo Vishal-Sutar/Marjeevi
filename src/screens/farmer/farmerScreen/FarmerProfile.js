@@ -4,28 +4,72 @@ import {
   View,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { logOut } from "../../../Redux/AuthSlice";
 import { useTranslation } from "react-i18next";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { getUserDetails } from "../../../Redux/apiService";
 
 const MENU_ITEMS = [
-    { id: 1, key: "personal_details", icon: "👤" },
-    { id: 2, key: "address_details", icon: "📍" },
-    { id: 3, key: "farmer_category", icon: "🧑‍🌾" },
-    { id: 4, key: "crops_grown", icon: "🌱" },
-    { id: 5, key: "land_details", icon: "🏡" },
-    { id: 6, key: "bank_details", icon: "🏦" },
-    { id: 7, key: "uploaded_documents", icon: "📄" },
-    { id: 8, key: "help_support", icon: "❓" },
+    { id: 1, title: "Personal Details", icon: "👤", screen: "PersonalDetails" },
+    { id: 2, title: "Address Details", icon: "📍", screen: "AddressDetails" },
+    { id: 3, title: "Farmer Category", icon: "🧑‍🌾" },
+    { id: 4, title: "Crops Grown", icon: "🌱", screen: "CropsGrown" },
+    { id: 5, title: "Land Details", icon: "🏡", screen: "LandDetails" },
+    { id: 6, title: "Bank Details", icon: "🏦", screen: "BankDetails" },
+    { id: 7, title: "Uploaded Documents", icon: "📄", screen: "UploadedDocuments" },
+    { id: 8, title: "Help & Support", icon: "❓", screen: "HelpSupport" },
   ];
 
 const FarmerProfile = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-    const { t } = useTranslation();
+  const { t } = useTranslation();
+  
+  const [userDetails, setUserDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUserDetails();
+    }, [])
+  );
+
+  const fetchUserDetails = async () => {
+    try {
+      console.log('🔍 FarmerProfile - Fetching user details...');
+      const response = await getUserDetails();
+      console.log('🔍 FarmerProfile - Raw response:', JSON.stringify(response, null, 2));
+      
+      const userData = response.data || response;
+      console.log('🔍 FarmerProfile - Processed userData:', JSON.stringify(userData, null, 2));
+      
+      setUserDetails(userData);
+    } catch (error) {
+      console.error('🔍 FarmerProfile - Failed to fetch user details:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMenuPress = (item) => {
+    console.log('Menu pressed:', item.title, item.screen);
+    if (item.screen) {
+      try {
+        navigation.navigate(item.screen);
+      } catch (error) {
+        console.error('Navigation error:', error);
+      }
+    }
+  };
 
   const logoutUser = async () => {
     try {
@@ -49,17 +93,21 @@ const FarmerProfile = () => {
             </View>
 
             <View style={styles.userInfo}>
-              <Text style={styles.name}>Rajesh Pawar</Text>
-              <Text style={styles.phone}>+91 0000000000</Text>
+              <Text style={styles.name}>
+                {loading ? "Loading..." : `${userDetails?.firstName || ""} ${userDetails?.lastName || ""}`}
+              </Text>
+              <Text style={styles.phone}>
+                {loading ? "Loading..." : `+91 ${userDetails?.phone || "N/A"}`}
+              </Text>
 
               <View style={styles.roleBadge}>
-                <Text style={styles.roleText}> {t("profile.role_farmer")}</Text>
+                <Text style={styles.roleText}>Farmer</Text>
               </View>
             </View>
           </View>
 
           <TouchableOpacity style={styles.editBtn}>
-            <Text style={styles.editText}>{t("profile.edit_profile")}</Text>
+            <Text style={styles.editText}>Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
@@ -70,12 +118,13 @@ const FarmerProfile = () => {
               key={item.id}
               style={styles.menuItem}
               activeOpacity={0.7}
+              onPress={() => handleMenuPress(item)}
             >
               <View style={styles.menuLeft}>
                 <View style={styles.menuIcon}>
                   <Text>{item.icon}</Text>
                 </View>
-                <Text style={styles.menuText}> {t(`profile.menu.${item.key}`)}</Text>
+                <Text style={styles.menuText}>{item.title}</Text>
               </View>
 
               <Text style={styles.arrow}>›</Text>
@@ -89,7 +138,7 @@ const FarmerProfile = () => {
           onPress={logoutUser}
           activeOpacity={0.8}
         >
-          <Text style={styles.logoutText}>⎋  {t("profile.logout")}</Text>
+          <Text style={styles.logoutText}>⎋  Logout</Text>
         </TouchableOpacity>
 
         <View style={{ height: 30 }} />

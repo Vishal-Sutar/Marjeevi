@@ -236,6 +236,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 14,
     marginBottom: 16,
+    color: "#000",
   },
 
   errorInput: {

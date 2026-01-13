@@ -1,5 +1,4 @@
 import axios from "axios";
-// import { getAccessToken, getUserData } from "./Storage";
 import {pythonUrl} from '../Redux/AuthSlice';
 import { getAccessToken, getUserData } from "./Storage";
 import { Alert } from "react-native";
@@ -22,9 +21,10 @@ const getUserId = async () => {
 apiClient.interceptors.request.use(
   async (config) => {
     const token = await getAccessToken();
+    console.log('Interceptor token:', token);
 
     if (token) {
-      config.headers.Authorization = token;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
@@ -34,6 +34,29 @@ apiClient.interceptors.request.use(
 
 // 🔹 API services
 const apiService = {
+  getUserDetails: async () => {
+    try {
+      const token = await getAccessToken();
+      console.log('🔍 getUserDetails - Token:', token ? 'EXISTS' : 'MISSING');
+      
+      const response = await apiClient.get('/api/user/getUserDetails', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log('🔍 getUserDetails - Full Response:', JSON.stringify(response.data, null, 2));
+      console.log('🔍 getUserDetails - Response Structure:', {
+        hasData: !!response.data?.data,
+        directData: !!response.data?.firstName,
+        keys: Object.keys(response.data || {})
+      });
+      return response.data;
+    } catch (error) {
+      console.error('🔍 getUserDetails - Error:', error.response?.data || error.message);
+      throw error;
+    }
+  },
 
   getProfile: async () => {
     try {
@@ -48,7 +71,7 @@ const apiService = {
   },
 
 FarmerRegister : async (finalPayload) => {
-  console.log(finalPayload)
+  console.log('FarmerRegister payload:', finalPayload)
 
   const {
       firstName,
@@ -62,6 +85,9 @@ FarmerRegister : async (finalPayload) => {
       farmerCategory,
       cropsGrown = [],
       landDetails = [],
+      bankName,
+      ifscCode,
+      accountNumber,
       documents = {}
     } = finalPayload;
 
@@ -71,41 +97,43 @@ FarmerRegister : async (finalPayload) => {
       role: "Farmer",
       firstName,
       lastName,
-      phone:phone,
-      gender:gender,
-      password: password ,
-      village: village ,
+      phone: phone,
+      gender: gender,
+      password: password,
+      village: village,
       district: district,
-      state: state ,
+      state: state,
       farmerCategory: farmerCategory,
-     cropsGrown: [
-    {
-      cropName: "Wheat",
-      season: "kharif",
-      quantityProduced: "500 kg"
-    }
-  ],
-  landDetails: [
-    {
-      plotId: "P001",
-      area: 5,
-      irrigationType: "well",
-      soilType: "black"
-    }
-  ]
-
+      cropsGrown: cropsGrown.length > 0 ? cropsGrown : [
+        {
+          cropName: "Wheat",
+          season: "kharif",
+          quantityProduced: "500 kg"
+        }
+      ],
+      landDetails: landDetails.length > 0 ? landDetails : [
+        {
+          plotId: "P001",
+          area: 5,
+          irrigationType: "well",
+          soilType: "black"
+        }
+      ],
+      bankName: bankName || null,
+      ifscCode: ifscCode || null,
+      accountNumber: accountNumber || null
     };
+    
+    console.log('Sending userData to server:', userData);
+    
    const response = await apiClient.post('api/user/register', userData);
-   console.log("response...",response);
+   console.log("Registration response:", response.data);
    
     return response?.data;
 
   } catch (error) {
-    console.log("Registration error:", error);
-    
-    // Show user-friendly error
-    const errorMsg = error.response?.data?.message || "Registration failed. Please try again.";
-    Alert.alert('Error', errorMsg);
+    console.log("Registration error:", error.response?.data || error.message);
+    throw error; // Re-throw the error instead of showing Alert
   }
 },
 
@@ -201,60 +229,161 @@ StafRegister : async (stafPayload) => {
   }
 },
 
- updateProfile : async (userRole) => {
+ updateProfile : async (profileData) => {
   try {
-    // Base data common to all roles
-    const baseData = {
-      role: userRole,
-      fistName: firstName,
-      lastName: lastName,
-      phone: contactNumber,
-      gender: gender,
-      village: village,
-      district: district,
-      state: state
-    };
-
-    // Add role-specific fields
-    let requestData = { ...baseData };
+    const token = await getAccessToken();
+    console.log('🔄 updateProfile - Sending data:', JSON.stringify(profileData, null, 2));
+    console.log('🔄 updateProfile - Token exists:', !!token);
     
-    if (userRole === "Farmer") {
-      requestData = {
-        ...requestData,
-        farmerCategory: farmerCategory,
-        cropsGrown: cropsGrown || [],
-        landDetails: landDetails || []
-      };
-    } else if (userRole === "Staff") {
-      requestData = {
-        ...requestData,
-        emailId: emailId,
-        joiningDate: joiningDate
-      };
-    } else if (userRole === "FPO") {
-      requestData = {
-        ...requestData,
-        emailId: emailId,
-        gstNumber: gstNumber,
-        shopName: shopName
-      };
-    }
-
-    // Add password only if provided
-    if (password && password.trim() !== '') {
-      requestData.password = password;
-    }
-
-    const userId = await getUserId();
-    const response = await axios.put(
-      `/api/user/update-profile/${userId}`,
-      requestData
-    );
-
+    const response = await apiClient.put('/api/user/update-profile', profileData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('🔄 updateProfile - Response:', JSON.stringify(response.data, null, 2));
     return response.data;
-    
   } catch (error) {
-    console.error('Update error:', error);
+    console.error('🔄 updateProfile - Error:', error.response?.data || error.message);
+    throw error;
+  }
+},
+
+// Crop Listing APIs
+// addCropListing: async (listingData) => {
+//   try {
+//     const token = await getAccessToken();
+//     console.log('API URL:', `${pythonUrl}/api/crop-listing/add`);
+//     console.log('Token:', token);
+//     console.log('FormData keys:', Array.from(listingData._parts.map(part => part[0])));
+    
+//     const response = await axios({
+//       method: 'POST',
+//       url: `${pythonUrl}/api/crop-listing/add`,
+//       data: listingData,
+//       headers: {
+//         'Authorization': `Bearer ${token}`,
+//         'Content-Type': 'multipart/form-data',
+//       },
+//       timeout: 60000,
+//     });
+    
+//     return response.data;
+//   } catch (error) {
+//     console.error('Full error object:', error);
+//     console.error('Error response:', error.response?.data);
+//     console.error('Error status:', error.response?.status);
+//     console.error('Error message:', error.message);
+    
+//     if (error.code === 'ECONNABORTED') {
+//       throw new Error('Request timeout. Please try again.');
+//     }
+//     if (error.message === 'Network Error') {
+//       throw new Error('Network connection failed. Check your internet connection.');
+//     }
+//     throw error;
+//   }
+// },
+
+addCropListing: async (listingData) => {
+  try {
+    const token = await getAccessToken();
+
+    console.log('Uploading crop listing...');
+    console.log('API:', `${pythonUrl}/api/crop-listing/add`);
+    console.log('Token exists:', !!token);
+
+    // Log FormData contents for debugging
+    if (listingData._parts) {
+      console.log('FormData contents:');
+      listingData._parts.forEach(([key, value]) => {
+        if (key === 'cropImages') {
+          console.log(`${key}:`, {
+            uri: value.uri,
+            type: value.type,
+            name: value.name,
+            size: value.size || 'unknown'
+          });
+        } else {
+          console.log(`${key}:`, value);
+        }
+      });
+    }
+
+    // Use fetch with the original FormData
+    const response = await fetch(`${pythonUrl}/api/crop-listing/add`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        // Don't set Content-Type for multipart/form-data
+      },
+      body: listingData,
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+    const responseText = await response.text();
+    console.log('Response body:', responseText.substring(0, 500));
+
+    if (!response.ok) {
+      if (response.status === 400) {
+        throw new Error('Bad Request - Check if all required fields are provided correctly');
+      }
+      throw new Error(`Server error: ${response.status} - ${response.statusText}`);
+    }
+
+    try {
+      return JSON.parse(responseText);
+    } catch (e) {
+      console.log('Response is not JSON, treating as success');
+      return { success: true, message: 'Upload successful' };
+    }
+  } catch (error) {
+    console.error("Crop Listing Upload Error");
+    console.error("Error message:", error.message);
+    
+    if (error.name === 'TypeError' && error.message.includes('Network request failed')) {
+      throw new Error('Network connection failed. Please check your internet connection.');
+    }
+    
+    throw error;
+  }
+},
+
+
+updateCropListing: async (id, listingData) => {
+  try {
+    const userId = await getUserId();
+    const dataWithUserId = { ...listingData, userId };
+    const response = await apiClient.put(`/api/crop-listing/update/${id}`, dataWithUserId);
+    return response.data;
+  } catch (error) {
+    console.error('Update Crop Listing Error:', error);
+    throw error;
+  }
+},
+
+deleteCropListing: async (id) => {
+  try {
+    const userId = await getUserId();
+    const response = await apiClient.delete(`/api/crop-listing/delete/${id}`, {
+      data: { userId }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Delete Crop Listing Error:', error);
+    throw error;
+  }
+},
+
+getCropListings: async () => {
+  try {
+    const response = await apiClient.get('/api/crop-listing/getListings');
+    return response.data;
+  } catch (error) {
+    console.error('Get Crop Listings Error:', error);
     throw error;
   }
 },
@@ -269,4 +398,15 @@ StafRegister : async (stafPayload) => {
 
 
 // 🔹 Export APIs
-export const { getProfile,FarmerRegister,StafRegister,FPORegister ,updateProfile,  } = apiService;
+export const { 
+  getUserDetails, 
+  getProfile, 
+  FarmerRegister, 
+  StafRegister, 
+  FPORegister, 
+  updateProfile, 
+  addCropListing, 
+  updateCropListing, 
+  deleteCropListing, 
+  getCropListings 
+} = apiService;

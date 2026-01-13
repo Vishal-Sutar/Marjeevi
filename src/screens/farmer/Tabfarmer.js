@@ -35,7 +35,7 @@ const Tabfarmer = () => {
         name="FarmerHomeTab"
         component={FarmerStackHome}
         options={{
-          tabBarLabel: t("tabs.home"),
+          tabBarLabel: t("farmer_tabs.home"),
           tabBarIcon: ({ focused }) => (
             <Image
               source={Images.Home}
@@ -54,7 +54,7 @@ const Tabfarmer = () => {
         name="FarmerMarketTab"
         component={FarmerStackMarket}
         options={{
-          tabBarLabel: t("tabs.marketplace"),
+          tabBarLabel: t("farmer_tabs.marketplace"),
           tabBarIcon: ({ focused }) => (
             <Image
               source={Images.Market}
@@ -73,7 +73,7 @@ const Tabfarmer = () => {
         name="FarmerListingTab"
         component={FarmerStackListing}
         options={{
-          tabBarLabel: t("tabs.listings"),
+          tabBarLabel: t("farmer_tabs.listings"),
           tabBarIcon: ({ focused }) => (
             <Image
               source={Images.Listings}
@@ -92,7 +92,7 @@ const Tabfarmer = () => {
         name="FarmerProfileTab"
         component={FarmerStackProfile}
         options={{
-          tabBarLabel: t("tabs.profile"),
+          tabBarLabel: t("farmer_tabs.profile"),
           tabBarIcon: ({ focused }) => (
             <Image
               source={Images.Login}

@@ -19,11 +19,11 @@ const BindUser = () => {
     const getRole = async () => {
       try {
         const user = await getUserData();
-        console.log(user)
+        console.log('Retrieved user role:', user);
         setRole(user || 'staff'); // fallback
       } catch (error) {
         console.log('Error fetching role:', error);
-        setRole('user');
+        setRole('staff'); // Changed from 'user' to 'staff'
       } finally {
         setLoading(false);
       }
@@ -47,11 +47,11 @@ const BindUser = () => {
       case 'farmer':
         return <Tabfarmer />;
       case 'staff':
-         return <TabStackuser />;
-          case 'fpo':
+        return <TabStackuser />;
+      case 'fpo':
+        return <TabFPO />;
       default:
-          return <TabFPO />;
-       
+        return <TabStackuser />; // Default to staff instead of FPO
     }
   };
 

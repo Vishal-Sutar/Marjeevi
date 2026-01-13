@@ -1,5 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { getUserDetails, updateProfile } from "../../../Redux/apiService";
 import {
   View,
   Text,
@@ -14,40 +15,97 @@ import { useTranslation } from "react-i18next";
 
 
 const Screen1 = () => {
-
-    const navigation = useNavigation()
-      const { t } = useTranslation(); // 🌍
- const [firstName, setfirstName] = useState("");
- const [lastName, setlastName] = useState("");
+  const navigation = useNavigation();
+  const { t } = useTranslation();
+  
+  const [firstName, setfirstName] = useState("");
+  const [lastName, setlastName] = useState("");
   const [mobile, setMobile] = useState("");
-  const [password, setPassword] = useState("");
   const [village, setVillage] = useState("");
   const [gender, setGender] = useState("Male");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      console.log('🔄 ScreenOne - Fetching user data...');
+      const response = await getUserDetails();
+      console.log('🔄 ScreenOne - Raw response:', JSON.stringify(response, null, 2));
+      
+      const userData = response.data || response;
+      console.log('🔄 ScreenOne - Processed userData:', JSON.stringify(userData, null, 2));
+      
+      if (userData) {
+        setfirstName(userData.firstName || "");
+        setlastName(userData.lastName || "");
+        setMobile(userData.phone || "");
+        setVillage(userData.village || "");
+        setGender(userData.gender || "Male");
+        console.log('🔄 ScreenOne - Form populated with:', {
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          phone: userData.phone,
+          village: userData.village,
+          gender: userData.gender
+        });
+      }
+    } catch (error) {
+      console.error('🔄 ScreenOne - Failed to fetch user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
-  // Mobile number validation
-  const isValidMobile = /^\d{10}$/.test(mobile);
-  
-const handleContinue = () => {
-    if (!firstName || !mobile || !password || !village || !lastName) {
-     Alert.alert(t("error"), t("fill_required_fields"));
+const handleContinue = async () => {
+    if (!firstName || !mobile || !village || !lastName) {
+      Alert.alert(t("error"), t("fill_required_fields"));
       return;
     }
 
-    if (!isValidMobile) {
-      Alert.alert(t("error"), "Please enter a valid 10-digit mobile number");
-      return;
-    }
-
-    navigation.navigate("Screen2", {
-      screen1Data: {
+    setLoading(true);
+    try {
+      console.log('🔄 ScreenOne - Current form values:', {
+        firstName,
+        lastName,
+        mobile,
+        village,
+        gender
+      });
+      
+      const profileData = {
         firstName,
         lastName,
         phone: mobile,
-         password,
         village,
         gender: gender.toLowerCase(),
-      },
-    });
+      };
+      
+      console.log('🔄 ScreenOne - Sending profile data:', profileData);
+      const response = await updateProfile(profileData);
+      console.log('🔄 ScreenOne - Profile updated:', response);
+      
+      // Check if firstName/lastName were actually updated
+      const updatedData = response.data;
+      if (updatedData.firstName !== firstName || updatedData.lastName !== lastName) {
+        Alert.alert(
+          "Partial Update", 
+          "Profile updated but firstName/lastName couldn't be changed. This may be restricted by the server.",
+          [{ text: "OK", onPress: () => navigation.goBack() }]
+        );
+      } else {
+        Alert.alert("Success", "Profile updated successfully!", [
+          { text: "OK", onPress: () => navigation.goBack() }
+        ]);
+      }
+    } catch (error) {
+      console.error('🔄 ScreenOne - Update profile error:', error);
+      Alert.alert("Error", "Failed to update profile. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -63,11 +121,7 @@ const handleContinue = () => {
           >
             <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.stepText}>{t("step_1_of_2")}</Text>
-        </View>
-
-        <View style={styles.progressBarBg}>
-          <View style={styles.progressBarFill} />
+          <Text style={styles.stepText}>Personal Details</Text>
         </View>
       </View>
 
@@ -77,7 +131,7 @@ const handleContinue = () => {
           <Text style={styles.icon}>👤</Text>
         </View>
 
-        <Text style={styles.cardTitle}>{t("personal_details")}</Text>
+        <Text style={styles.cardTitle}>Edit Personal Details</Text>
 
         {/* FULL NAME */}
         <Text style={styles.label}>{t("first_name")} *</Text>
@@ -102,23 +156,10 @@ const handleContinue = () => {
         <TextInput
           placeholder={t("mobile_placeholder_short")}
           keyboardType="numeric"
-          maxLength={10}
-          style={[
-            styles.input,
-            mobile.length > 0 && !isValidMobile && styles.errorInput
-          ]}
+          style={styles.input}
           value={mobile}
           onChangeText={setMobile}
         />
-
-        {/* PASSWORD */}
-<Text style={styles.label}>{t("password")} *</Text>
-<TextInput
-  placeholder={t("enter_password")}
-  style={styles.input}
-  value={password}
-  onChangeText={setPassword}
-/>
 
         {/* GENDER */}
         <Text style={styles.label}>{t("gender")} *</Text>
@@ -155,9 +196,13 @@ const handleContinue = () => {
         />
       </View>
 
-      {/* CONTINUE */}
-      <TouchableOpacity style={styles.continueBtn} onPress={()=> handleContinue()}>
-        <Text style={styles.continueText}> {t("continue")} ›</Text>
+      {/* UPDATE BUTTON */}
+      <TouchableOpacity 
+        style={[styles.updateBtn, loading && styles.updateBtn]} 
+        onPress={handleContinue}
+        disabled={loading}
+      >
+        <Text style={styles.updateText}>{loading ? "Updating..." : "Update"}</Text>
       </TouchableOpacity>
 
       <View style={{ height: 30 }} />
@@ -182,7 +227,6 @@ headerTop: {
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: 10,
 },
 
 backBtn: {
@@ -204,20 +248,6 @@ stepText: {
   fontSize: 12,
   color: "#666",
   fontWeight: "500",
-},
-
-progressBarBg: {
-  height: 4,
-  width: "100%",
-  backgroundColor: "#E0E0E0",
-  borderRadius: 2,
-},
-
-progressBarFill: {
-  height: 4,
-  width: "14%", // Step 1 of 7
-  backgroundColor: "#2E7D32",
-  borderRadius: 2,
 },
 
   /* CARD */
@@ -269,10 +299,6 @@ progressBarFill: {
     color:"black"
   },
 
-  errorInput: {
-    borderColor: "red",
-  },
-
   /* GENDER */
   genderRow: {
     flexDirection: "row",
@@ -301,8 +327,8 @@ progressBarFill: {
     fontWeight: "600",
   },
 
-  /* CONTINUE */
-  continueBtn: {
+  /* UPDATE BUTTON */
+  updateBtn: {
     backgroundColor: "#2E7D32",
     marginHorizontal: 16,
     marginTop: 20,
@@ -310,7 +336,7 @@ progressBarFill: {
     paddingVertical: 14,
     alignItems: "center",
   },
-  continueText: {
+  updateText: {
     color: "#fff",
     fontSize: 15,
     fontWeight: "700",

@@ -1,61 +1,92 @@
-import React from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, Image } from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
+import { getCropListings, deleteCropListing } from "../../../Redux/apiService";
 
-
-const DATA = [
-  {
-    id: "1",
-    name: "Tomato",
-    type: "Hybrid",
-    quantity: "500 kg",
-    price: "₹25/kg",
-    status: "approved",
-  },
-  {
-    id: "2",
-    name: "Rice",
-    type: "Basmati",
-    quantity: "1000 kg",
-    price: "₹40/kg",
-    status: "pending",
-  },
-  {
-    id: "3",
-    name: "Wheat",
-    type: "Organic",
-    quantity: "750 kg",
-    price: "₹30/kg",
-    status: "sold",
-  },
-];
 
 
 const MyListing = () => {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchListings();
+  }, []);
+
+  // Refresh data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchListings();
+    }, [])
+  );
+
+  const fetchListings = async () => {
+    try {
+      const response = await getCropListings();
+      setListings(response.data || []);
+    } catch (error) {
+      console.error("Failed to fetch listings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    Alert.alert(
+      "Delete Listing",
+      "Are you sure you want to delete this listing?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteCropListing(id);
+              setListings(prev => prev.filter(item => item._id !== id));
+            } catch (error) {
+              console.error("Failed to delete listing:", error);
+              Alert.alert("Error", "Failed to delete listing");
+            }
+          }
+        }
+      ]
+    );
+  };
 
 const renderItem = ({ item }) => {
-    const statusStyle = styles[`status${item.status}`];
+    const statusStyle = styles[`status${item.status || 'pending'}`];
 
     return (
       <View style={styles.card}>
         {/* TOP ROW */}
         <View style={styles.row}>
-          <View style={styles.imageBox} />
+          {item.cropImages && item.cropImages.length > 0 ? (
+            <Image 
+              source={{ uri: item.cropImages[0].url }} 
+              style={styles.cropImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.imageBox}>
+              <Text style={styles.placeholderIcon}>🌾</Text>
+            </View>
+          )}
 
           <View style={styles.info}>
-            <Text style={styles.title}>{item.name}</Text>
-            <Text style={styles.subText}>{item.type}</Text>
+            <Text style={styles.title}>{item.cropName || item.name}</Text>
+            <Text style={styles.subText}>{item.variety || "Variety"}</Text>
             <Text style={styles.subText}>
-              {item.quantity} • {item.price}
+              {item.quantity}kg • ₹{item.price}/kg
             </Text>
           </View>
 
           <View style={[styles.status, statusStyle]}>
             <Text style={styles.statusText}>
-              {t(`listing.status.${item.status}`)}
+              {item.status || "Pending"}
             </Text>
           </View>
         </View>
@@ -63,15 +94,21 @@ const renderItem = ({ item }) => {
         {/* ACTIONS */}
         {item.status !== "sold" && (
           <View style={styles.actions}>
-            <TouchableOpacity style={styles.editBtn}>
+            <TouchableOpacity 
+              style={styles.editBtn}
+              onPress={() => navigation.navigate('CreateListing', { listing: item })}
+            >
               <Text style={styles.editText}>
-                ✏ {t("common.edit")}
+                ✏️ Edit
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.deleteBtn}>
+            <TouchableOpacity 
+              style={styles.deleteBtn}
+              onPress={() => handleDelete(item._id)}
+            >
               <Text style={styles.deleteText}>
-                🗑 {t("common.delete")}
+                🗑️ Delete
               </Text>
             </TouchableOpacity>
           </View>
@@ -85,8 +122,8 @@ const renderItem = ({ item }) => {
       {/* HEADER */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>  {t("listing.my_listings")}</Text>
-          <Text style={styles.headerSub}>{DATA.length} {t("listing.total", { count: DATA.length })}</Text>
+          <Text style={styles.headerTitle}>{t("listing.my_listings")}</Text>
+          <Text style={styles.headerSub}>{listings.length} {t("listing.total", { count: listings.length })}</Text>
         </View>
 
         {/* ADD BUTTON */}
@@ -94,18 +131,25 @@ const renderItem = ({ item }) => {
           style={styles.addBtn}
           onPress={()=> navigation.navigate('CreateListing')}
         >
-          <Text style={styles.addIcon}>＋</Text>
+          <Text style={styles.addIcon}>+</Text>
         </TouchableOpacity>
       </View>
 
       {/* LIST */}
-      <FlatList
-        data={DATA}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-        showsVerticalScrollIndicator={false}
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#3A9D4F" />
+          <Text style={styles.loadingText}>Loading listings...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={listings}
+          keyExtractor={(item) => item._id || item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 16 }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 };
@@ -160,6 +204,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#DDF1DF",
     marginRight: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cropImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 12,
+    marginRight: 12,
+  },
+  placeholderIcon: {
+    fontSize: 24,
   },
   info: {
     flex: 1,
@@ -238,5 +293,18 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: "#2E7D32",
     fontWeight: "700",
+  },
+
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+
+  loadingText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: "#666",
   },
 });

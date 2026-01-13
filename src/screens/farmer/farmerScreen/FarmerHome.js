@@ -45,7 +45,12 @@ const renderAction = ({ item }) => {
       if (item.key === "documents") navigation.navigate("Documents");
       if (item.key === "create_listing") navigation.navigate("CreateListing");
       if (item.key === "my_farm") navigation.navigate("MyFarms");
-      if (item.key === "my_profile") navigation.navigate("ProfileTab");
+      if (item.key === "my_profile") navigation.navigate("FarmerProfile");
+    };
+
+    const getActionText = (key) => {
+      if (key === "create_listing") return "Create Listing";
+      return t(key);
     };
 
     return (
@@ -53,7 +58,7 @@ const renderAction = ({ item }) => {
         <View style={styles.actionIcon}>
           <Text style={styles.actionIconText}>{item.icon}</Text>
         </View>
-        <Text style={styles.actionText}> {t(item.key)}</Text>
+        <Text style={styles.actionText}> {getActionText(item.key)}</Text>
       </TouchableOpacity>
     );
   };

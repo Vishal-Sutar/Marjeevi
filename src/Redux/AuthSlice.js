@@ -76,7 +76,11 @@ export const login = createAsyncThunk(
       );
 
       // 3️⃣ Save user data to local storage
-      await setUserData(response?.data?.user);
+      if (role === 'farmer') {
+        await setUserData('farmer');
+      } else {
+        await setUserData(response?.data?.user?.role || role);
+      }
 
       // 4️⃣ Save access token
       await setAccessToken(response?.data?.token);
@@ -139,6 +143,13 @@ reducers: {
     clearRegisteredUser: (state) => {
       state.registeredUser = null;
     },
+
+    // ✅ REGISTER USER AFTER SUCCESSFUL REGISTRATION
+    register: (state, action) => {
+      state.userData = action.payload;
+      state.isSuccess = true;
+      state.isLoading = false;
+    },
   },
     extraReducers: builder => {
    
@@ -178,6 +189,7 @@ reducers: {
 export const {
   saveRegisteredUser,
   clearRegisteredUser,
+  register,
 } = AuthSlice.actions;
 
 

@@ -8,6 +8,10 @@ import MyListing from './farmerScreen/MyListing';
 import FarmerProfile from './farmerScreen/FarmerProfile';
 import Documents from './farmerScreen/Documents';
 import CreateListing from './farmerScreen/CreateListing';
+import ScreenOne from './FarmerProfile/ScreenOne';
+import ScreenSecond from './FarmerProfile/ScreenSecond';
+import ScreenThird from './FarmerProfile/ScreenThird';
+import ScreenFourth from './FarmerProfile/ScreenFourth';
 import MyFarms from './farmerScreen/MyFarms ';
 
 const Stack = createNativeStackNavigator();
@@ -28,6 +32,12 @@ export const FarmerStackHome = () => {
         <Stack.Screen name="Home" component={FarmerHome} />
         <Stack.Screen name="Documents" component={Documents} />
         <Stack.Screen name="MyFarms" component={MyFarms} />
+        <Stack.Screen name="CreateListing" component={CreateListing} />
+        <Stack.Screen name="FarmerProfile" component={FarmerProfile} />
+        <Stack.Screen name="PersonalDetails" component={ScreenOne} />
+        <Stack.Screen name="AddressDetails" component={ScreenSecond} />
+        <Stack.Screen name="FarmerCategory" component={ScreenThird} />
+        <Stack.Screen name="CropsGrown" component={ScreenFourth} />
       </Stack.Navigator>
     </Suspense>
   );
@@ -59,6 +69,10 @@ export const FarmerStackProfile = () => {
     <Suspense fallback={<LoadingIndicator />}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="FarmerProfile" component={FarmerProfile} />
+        <Stack.Screen name="PersonalDetails" component={ScreenOne} />
+        <Stack.Screen name="AddressDetails" component={ScreenSecond} />
+        <Stack.Screen name="FarmerCategory" component={ScreenThird} />
+        <Stack.Screen name="CropsGrown" component={ScreenFourth} />
       </Stack.Navigator>
     </Suspense>
   );
