@@ -24,6 +24,7 @@ i18n
     fallbackLng: "en",
     debug: false,
     resources,
+    keySeparator: ".",
     interpolation: {
       escapeValue: false,
     },

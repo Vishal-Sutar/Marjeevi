@@ -52,12 +52,12 @@ const PRODUCTS = t("marketplace.products", { returnObjects: true });
         {item.price} <Text style={styles.unit}>{item.unit}</Text>
       </Text>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.cartBtn}
         onPress={() => setCartCount(prev => prev + 1)}
       >
         <Text style={styles.cartBtnText}>{t("marketplace.add_to_cart")}</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 

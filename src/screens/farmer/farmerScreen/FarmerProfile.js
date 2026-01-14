@@ -13,21 +13,21 @@ import { useTranslation } from "react-i18next";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { getUserDetails } from "../../../Redux/apiService";
 
-const MENU_ITEMS = [
-    { id: 1, title: "Personal Details", icon: "👤", screen: "PersonalDetails" },
-    { id: 2, title: "Address Details", icon: "📍", screen: "AddressDetails" },
-    { id: 3, title: "Farmer Category", icon: "🧑‍🌾" },
-    { id: 4, title: "Crops Grown", icon: "🌱", screen: "CropsGrown" },
-    { id: 5, title: "Land Details", icon: "🏡", screen: "LandDetails" },
-    { id: 6, title: "Bank Details", icon: "🏦", screen: "BankDetails" },
-    { id: 7, title: "Uploaded Documents", icon: "📄", screen: "UploadedDocuments" },
-    { id: 8, title: "Help & Support", icon: "❓", screen: "HelpSupport" },
-  ];
-
 const FarmerProfile = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { t } = useTranslation();
+  
+  const MENU_ITEMS = [
+    { id: 1, title: t("personal_details"), icon: "👤", screen: "PersonalDetails" },
+    { id: 2, title: t("address_details"), icon: "📍", screen: "AddressDetails" },
+    { id: 3, title: t("farmer_category"), icon: "🌾", screen: "FarmerCategory" },
+    { id: 4, title: t("crops_grown"), icon: "🌱", screen: "CropsGrown" },
+    { id: 5, title: t("land_details"), icon: "🏡", screen: "LandDetails" },
+    { id: 6, title: t("bank_details"), icon: "🏦", screen: "BankDetails" },
+    { id: 7, title: t("document_upload"), icon: "📄", screen: "UploadedDocuments" },
+    { id: 8, title: "Help & Support", icon: "❓", screen: "HelpSupport" },
+  ];
   
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,7 +101,7 @@ const FarmerProfile = () => {
               </Text>
 
               <View style={styles.roleBadge}>
-                <Text style={styles.roleText}>Farmer</Text>
+                <Text style={styles.roleText}>{t("role_farmer")}</Text>
               </View>
             </View>
           </View>

@@ -16,10 +16,9 @@ const ScreenThird = () => {
   const { t } = useTranslation();
   
   const FARMER_CATEGORIES = [
-    { id: "small", label: "Small Farmer" },
-    { id: "medium", label: "Medium Farmer" },
-    { id: "large", label: "Large Farmer" },
-    { id: "marginal", label: "Marginal Farmer" }
+    { id: "small", label: t("farmer_small") },
+    { id: "medium", label: t("farmer_medium") },
+    { id: "marginal", label: t("farmer_marginal") }
   ];
   
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -53,7 +52,7 @@ const ScreenThird = () => {
   
   const handleUpdate = async () => {
     if (!selectedCategory) {
-      Alert.alert(t("error"), "Please select a farmer category");
+      Alert.alert(t("error"), t("select_farmer_category_alert"));
       return;
     }
 
@@ -75,18 +74,18 @@ const ScreenThird = () => {
       const updatedData = response.data;
       if (updatedData.farmerCategory !== selectedCategory) {
         Alert.alert(
-          "Partial Update", 
-          "Profile updated but farmer category couldn't be changed. This may be restricted by the server.",
+          t("error"), 
+          "Profile updated but farmer category couldn't be changed.",
           [{ text: "OK", onPress: () => navigation.goBack() }]
         );
       } else {
-        Alert.alert("Success", "Farmer category updated successfully!", [
+        Alert.alert(t("success"), t("farmer_category") + " updated successfully!", [
           { text: "OK", onPress: () => navigation.goBack() }
         ]);
       }
     } catch (error) {
       console.error('🧑‍🌾 ScreenThird - Update profile error:', error);
-      Alert.alert("Error", "Failed to update farmer category. Please try again.");
+      Alert.alert(t("error"), "Failed to update " + t("farmer_category"));
     } finally {
       setLoading(false);
     }
@@ -103,7 +102,7 @@ const ScreenThird = () => {
           >
             <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.stepText}>Farmer Category</Text>
+          <Text style={styles.stepText}>{t("farmer_category")}</Text>
         </View>
       </View>
 
@@ -113,10 +112,10 @@ const ScreenThird = () => {
           <Text style={styles.icon}>🧑‍🌾</Text>
         </View>
 
-        <Text style={styles.cardTitle}>Edit Farmer Category</Text>
+        <Text style={styles.cardTitle}>{t("farmer_category")}</Text>
 
         {/* FARMER CATEGORY */}
-        <Text style={styles.label}>Farmer Category *</Text>
+        <Text style={styles.label}>{t("farmer_category")} *</Text>
         
         {FARMER_CATEGORIES.map((category) => (
           <TouchableOpacity
@@ -140,7 +139,7 @@ const ScreenThird = () => {
         onPress={handleUpdate}
         disabled={loading}
       >
-        <Text style={styles.updateText}>{loading ? "Updating..." : "Update"}</Text>
+        <Text style={styles.updateText}>{loading ? t("please_wait") : t("update")}</Text>
       </TouchableOpacity>
 
       <View style={{ height: 30 }} />

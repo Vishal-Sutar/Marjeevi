@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 /* 🔹 MOCK DATA (Replace with API later) */
 const QUICK_ACTIONS = [
-  { id: "1", key: "create_listing", icon: "+" },
+  { id: "1", key: "create_listing.title", icon: "+" },
   { id: "2", key: "buy_inputs", icon: "🛒" },
   { id: "3", key: "my_profile", icon: "👤" },
   { id: "4", key: "documents", icon: "📄" },
@@ -49,7 +49,6 @@ const renderAction = ({ item }) => {
     };
 
     const getActionText = (key) => {
-      if (key === "create_listing") return "Create Listing";
       return t(key);
     };
 

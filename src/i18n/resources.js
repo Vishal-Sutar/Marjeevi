@@ -372,8 +372,6 @@ states: [
   "my_crop": "My Crop",
 
   //Documents
-
-  "documents": "Documents",
   "manage_documents": "Manage your farming documents",
   "soil_health_card": "Soil Health Card",
   "soil_health_desc": "Upload your soil health card for better recommendations",
@@ -423,7 +421,25 @@ states: [
         "unit": "per 50kg bag",
         "category": "Fertilizers",
         "icon": "🌾"
-      }
+      },
+      {
+        "id": "3",
+        "name": "Hybrid Wheat Seeds",
+        "brand": "AgroVet Supplies",
+        "price": "₹450",
+        "unit": "per packet",
+        "category": "Seeds",
+        "icon": "🌱"
+      },
+      {
+        "id": "4",
+        "name": "Hybrid Onion Seeds",
+        "brand": "AgroVet Supplies",
+        "price": "₹450",
+        "unit": "per packet",
+        "category": "Seeds",
+        "icon": "🌱"
+      },
     ]
   },
 
@@ -437,10 +453,22 @@ states: [
       "sold": "Sold"
     }
   },
-  "common": {
-    "edit": "Edit",
-    "delete": "Delete"
-  },
+  "update": "Update",
+
+  "listing_title": "Create Listing",
+  "crop_info": "Crop Information",
+  "crop_name": "Crop Name",
+  "variety": "Variety",
+  "quantity": "Quantity (kg)",
+  "price": "Price (₹/kg)",
+  "location": "Location",
+  "enter_location": "Enter location",
+  "use_location": "Use current location",
+  "upload_images": "Upload Images",
+  "add": "Add",
+  "submit_listing": "Submit Listing",
+  "fill_required": "Please fill all required fields",
+  "submitted": "Listing submitted successfully",
 
   "create_listing": {
     "title": "Create Listing",
@@ -451,13 +479,10 @@ states: [
     "price": "Price (₹/kg)",
     "location": "Location",
     "enter_location": "Enter location",
-    "use_location": "Use current location",
     "upload_images": "Upload Images",
     "add": "Add",
-    "submit": "Submit Listing",
-    "fill_required": "Please fill all required fields",
-    "submitted": "Listing submitted successfully"
-},
+    "submit": "Submit Listing"
+  },
 
   "profile": {
     "role_farmer": "Farmer",
@@ -1103,8 +1128,6 @@ states: [
 
 
 //Documents
-
-  "documents": "दस्तावेज़",
   "manage_documents": "अपने कृषि दस्तावेज़ प्रबंधित करें",
   "soil_health_card": "मिट्टी स्वास्थ्य कार्ड",
   "soil_health_desc": "बेहतर सुझावों के लिए अपना मिट्टी कार्ड अपलोड करें",
@@ -1147,31 +1170,25 @@ states: [
       "sold": "बिक गया"
     }
   },
-  "common": {
-    "edit": "संपादित करें",
-    "delete": "हटाएं"
-  },
+  "update": "अपडेट करें",
+
+  "listing_title": "लिस्टिंग बनाएं",
+  "crop_info": "फसल की जानकारी",
+  "crop_name": "फसल का नाम",
+  "variety": "किस्म",
+  "quantity": "मात्रा (किलो)",
+  "price": "कीमत (₹/किलो)",
+  "location": "स्थान",
+  "enter_location": "स्थान दर्ज करें",
+  "use_location": "वर्तमान स्थान उपयोग करें",
+  "upload_images": "चित्र अपलोड करें",
+  "add": "जोड़ें",
+  "submit_listing": "लिस्टिंग सबमिट करें",
+  "fill_required": "कृपया सभी आवश्यक फ़ील्ड भरें",
+  "submitted": "लिस्टिंग सफलतापूर्वक सबमिट हुई",
 
 
-  "create_listing": {
-    "title": "लिस्टिंग बनाएं",
-    "crop_info": "फसल की जानकारी",
-    "crop_name": "फसल का नाम",
-    "variety": "किस्म",
-    "quantity": "मात्रा (किलो)",
-    "price": "कीमत (₹/किलो)",
-    "location": "स्थान",
-    "enter_location": "स्थान दर्ज करें",
-    "use_location": "वर्तमान स्थान उपयोग करें",
-    "upload_images": "चित्र अपलोड करें",
-    "add": "जोड़ें",
-    "submit": "लिस्टिंग सबमिट करें",
-    "fill_required": "कृपया सभी आवश्यक फ़ील्ड भरें",
-    "submitted": "लिस्टिंग सफलतापूर्वक सबमिट हुई"
-},
-
-
-  "profile": {
+"profile": {
     "role_farmer": "किसान",
     "edit_profile": "प्रोफ़ाइल संपादित करें",
     "logout": "लॉगआउट",
